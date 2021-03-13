@@ -1,4 +1,5 @@
-﻿using JWTAuthentication.Models;
+﻿using JWTAuthentication.Constants;
+using JWTAuthentication.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -94,9 +95,45 @@ namespace JWTAuthentication.Controllers
                             signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
                         );
 
-                    return Ok(new  { token = new JwtSecurityTokenHandler().WriteToken(token), expiration = token.ValidTo});
+                    return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token), expiration = token.ValidTo });
                 }
                 return StatusCode(StatusCodes.Status400BadRequest, new ResponseViewModel { Status = "failed", Message = "Invalid credentials" });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        [HttpPost]
+        [Route("register-admin")]
+        public async Task<IActionResult> RegisterAdmin([FromBody] RegisterViewModel registerViewModel)
+        {
+            try
+            {
+                if (await _userManager.FindByNameAsync(registerViewModel.UserName) != null)
+                {
+                    return Ok(new ResponseViewModel { Status = "failed", Message = "user already exist" });
+                }
+
+                var user = new IdentityUser
+                {
+                    Email = registerViewModel.Email,
+                    UserName = registerViewModel.UserName
+                };
+
+                var result = await _userManager.CreateAsync(user, registerViewModel.Password);
+
+                if(!await _roleManager.RoleExistsAsync(UserRole.ADMIN))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole(UserRole.ADMIN));
+                }
+
+                if(await _roleManager.RoleExistsAsync(UserRole.ADMIN))
+                {
+                    await _userManager.AddToRoleAsync(user, UserRole.ADMIN);
+                }
+
+                return Ok(new ResponseViewModel { Status ="success", Message ="register admin user role completed"});
             }
             catch (Exception)
             {

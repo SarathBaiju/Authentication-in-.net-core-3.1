@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace JWTAuthentication.Controllers
 {
     [ApiController]
-    [Authorize]
+    [Authorize(Roles ="admin")]
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
