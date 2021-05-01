@@ -39,4 +39,4 @@
 5. The IdentityUser class is responsible for user add, password check etc (user related actions)
 6. The IdentityRole class is reponsible for role add, role check etc (role related actions)
 7. To add Authentication over a controller or a specific action method use [Authorize] 
-8. To add Role based authorization pass the required role in AuthorizeFilter constructor constructor
+8. To add Role based authorization pass the required role in AuthorizeFilter constructor
